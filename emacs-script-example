@@ -1,0 +1,34 @@
+#!/bin/sh
+emacs-script "$0" --load emacs-scripts.el --eval "(script \"$0\")";exit $? <<EOF
+
+(add-to-list 'load-path "/home/pascal/src/common/emacs")
+(require 'pjb-utilities)
+(require 'pjb-cl)
+
+(printf t "Hello World !\n")
+
+(defun read-line (&optional input-stream eof-error-p eof-value recursive-p)
+  (unless input-stream (setq input-stream standard-input))
+  (let ( (standard-input input-stream)
+         (line nil)
+         (char (read-char)) )
+    (while (not (member char '(10 13)))
+      (push char line)
+      (setq char (read-char)) )
+    (funcall 'concat  (nreverse line))
+    );;let
+  );;read-line
+
+(printf t "What's your name? ")
+(setq name (read-line))
+
+(printf t "Very nice to meet you, %s!\n" name)
+(exit)
+
+
+
+;; This is for Emacs.
+;; Local Variables:
+;; mode: emacs-lisp
+;; End:
+;;;; emacs-script-example             -- 2003-12-04 03:56:52 -- pascal   ;;;;
