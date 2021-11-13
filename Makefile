@@ -30,64 +30,40 @@
 #    Software Foundation, Inc., 59 Temple Place, Suite 330,
 #    Boston, MA 02111-1307 USA
 #******************************************************************************
-MODULE=emacs
-PACKAGE_PATH=com/informatimago/emacs
+PREFIX ?= /usr/local
 BINDIR=$(PREFIX)/bin
 
-EMACS_FLAGS= -l .emacs #-l pjb-cl.el
+EMACS_FLAGS = -l ~/.emacs
 
-# .el.elc: ; 	@echo '' ; echo Compiling $< ; emacs -batch -q $(EMACSFLAGS) -f batch-byte-compile $< 2>&1 | egrep -v -e 'Loading .*/fns-'
-# See also .emacs in this directory with the load-path used to compile.
+ifeq ($(shell uname),Darwin)
+EMACS=/opt/local/bin/emacs
+CLISP=/opt/local/bin/clisp
+SBCL=/opt/local/bin/sbcl
+else
+EMACS=/usr/local/bin/emacs
+CLISP=/usr/local/bin/clisp
+SBCL=/usr/local/bin/sbcl
+endif
 
 
-EMACS_SOURCES=\
-		pjb-cl.el \
-		pjb-list.el \
-		\
-		pjb-utilities.el \
-		pjb-queue.el \
-		pjb-strings.el \
-		pjb-s2p-expression.el \
-		pjb-i2p-expression.el \
-		pjb-roman.el \
-		pjb-primes.el \
-		pjb-pgp.el \
-		pjb-graph.el \
-		pjb-dot.el \
-		pjb-cvspass.el \
-		pjb-cvs.el \
-		\
-		pjb-object.el \
-		pjb-class.el \
-		pjb-sources.el \
-		pjb-bourse.el \
-		pjb-selftrade.el \
-		pjb-euro.el \
-		pjb-invoices.el \
-		pjb-banks.el \
-		pjb-work.el \
-		\
-		pjb-emacs.el \
-		pjb-mail.el \
-		pjb-vm-kill-file.el \
-		pjb-layers.el \
-		pjb-c.el \
-		pjb-advices.el
-
-OBJECTS=\
-		$(EMACS_OBJECTS) \
-		lisp-script
-
-INHIBITED=\
-		pjb-prolog-mode.elc
-
-all: lisp-script
+all: lisp-script emacs-script clisp-script
 	-@chmod a+r *
 
-lisp-script:lisp-script.c
-	$(CC) -g -Wall -o lisp-script lisp-script.c
+emacs-script: lisp-script
+	ln -s lisp-script emacs-script
 
-install:: all  install-packages
+clisp-script: lisp-script
+	ln -s lisp-script clisp-script
+
+lisp-script: lisp-script.c
+	$(CC) \
+		-DEMACS=\"$(EMACS)\" -DCLISP=\"$(CLISP)\" -DSBCL=\"$(SBCL)\" \
+		-g -Wall -o lisp-script lisp-script.c
+
+clean:
+	rm -f lisp-script emacs-script clisp-script
+
+install: all
 	@echo "Installing programs: emacs-script clisp-script"
 	-@umask 022 ; mkdir -p $(BINDIR) 2>/dev/null || true
 	install -m 644 emacs-script.el   $(BINDIR)
@@ -95,8 +71,5 @@ install:: all  install-packages
 	install -m 755 lisp-script       $(BINDIR)
 	ln -s -f lisp-script $(BINDIR)/emacs-script
 	ln -s -f lisp-script $(BINDIR)/clisp-script
-
-
-test.elc:test.el
 
 #### THE END ####

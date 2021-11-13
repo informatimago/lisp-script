@@ -1,7 +1,8 @@
-#!/bin/sh
-emacs-script "$0" --load emacs-scripts.el --eval "(script \"$0\")";exit $? <<EOF
+#!/usr/local/bin/emacs-script
+;; "$0" --load emacs-scripts.el --eval "(script \"$0\")"
 
-(add-to-list 'load-path "/home/pascal/src/common/emacs")
+(add-to-list 'load-path "~/src/public/emacs/")
+(princ "load-path = " t) (prin1 load-path t) (terpri t)
 (require 'pjb-utilities)
 (require 'pjb-cl)
 
@@ -9,26 +10,23 @@ emacs-script "$0" --load emacs-scripts.el --eval "(script \"$0\")";exit $? <<EOF
 
 (defun read-line (&optional input-stream eof-error-p eof-value recursive-p)
   (unless input-stream (setq input-stream standard-input))
-  (let ( (standard-input input-stream)
-         (line nil)
-         (char (read-char)) )
+  (let ((standard-input input-stream)
+        (line nil)
+        (char (read-char)))
+    (printf "char = %s\n" char)
     (while (not (member char '(10 13)))
       (push char line)
       (setq char (read-char)) )
-    (funcall 'concat  (nreverse line))
-    );;let
-  );;read-line
+    (funcall 'concat  (nreverse line))))
 
-(printf t "What's your name? ")
+(printf t "What's your name? \n")
 (setq name (read-line))
 
 (printf t "Very nice to meet you, %s!\n" name)
 (exit)
 
 
-
 ;; This is for Emacs.
 ;; Local Variables:
 ;; mode: emacs-lisp
 ;; End:
-;;;; emacs-script-example             -- 2003-12-04 03:56:52 -- pascal   ;;;;
